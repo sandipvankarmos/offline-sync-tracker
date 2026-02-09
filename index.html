@@ -62,6 +62,18 @@
         .brand-gradient { background: linear-gradient(135deg, #0ea5e9, #06b6d4, #14b8a6); }
         .brand-gradient-text { background: linear-gradient(135deg, #0ea5e9, #06b6d4); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
         .decorative-circle { position: absolute; border-radius: 50%; opacity: 0.5; pointer-events: none; }
+        /* Notification Panel Styles */
+        .notification-panel { animation: slideDown 0.3s ease; }
+        @keyframes slideDown { from { transform: translateY(-10px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        .notification-item { animation: fadeInUp 0.3s ease forwards; opacity: 0; }
+        .notification-item:nth-child(1) { animation-delay: 0.1s; }
+        .notification-item:nth-child(2) { animation-delay: 0.2s; }
+        .notification-item:nth-child(3) { animation-delay: 0.3s; }
+        @keyframes fadeInUp { from { transform: translateY(10px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        .notification-badge { animation: pulse 2s infinite; }
+        @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.1); } }
+        .welcome-modal { animation: bounceIn 0.5s ease; }
+        @keyframes bounceIn { 0% { transform: scale(0.3) translate(-50%, -50%); opacity: 0; } 50% { transform: scale(1.05) translate(-50%, -50%); } 70% { transform: scale(0.95) translate(-50%, -50%); } 100% { transform: scale(1) translate(-50%, -50%); opacity: 1; } }
     </style>
 </head>
 <body class="bg-gradient-to-br from-slate-50 via-cyan-50/30 to-slate-50 dark:from-slate-900 dark:via-slate-900 dark:to-slate-900 text-slate-900 dark:text-slate-100 transition-colors duration-300 pb-24 relative overflow-x-hidden">
@@ -75,6 +87,58 @@
 
     <!-- Toast Container -->
     <div id="toastContainer" class="fixed top-4 right-4 z-50 space-y-2"></div>
+
+    <!-- Notification Panel -->
+    <div id="notificationPanel" class="fixed top-16 right-4 w-80 max-w-[calc(100vw-2rem)] z-50 hidden">
+        <div class="notification-panel bg-white dark:bg-slate-800 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-700 overflow-hidden">
+            <div class="p-4 border-b border-slate-100 dark:border-slate-700 flex justify-between items-center">
+                <h3 class="font-bold text-slate-800 dark:text-white flex items-center gap-2">
+                    <svg class="w-5 h-5 text-cyan-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path>
+                    </svg>
+                    Notifications
+                </h3>
+                <button onclick="clearAllNotifications()" class="text-xs text-cyan-600 dark:text-cyan-400 hover:underline font-medium">Clear all</button>
+            </div>
+            <div id="notificationList" class="max-h-80 overflow-y-auto custom-scroll">
+                <!-- Notifications will be injected here -->
+            </div>
+            <div id="noNotifications" class="p-8 text-center hidden">
+                <div class="w-12 h-12 mx-auto mb-3 rounded-full bg-slate-100 dark:bg-slate-700 flex items-center justify-center">
+                    <svg class="w-6 h-6 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                    </svg>
+                </div>
+                <p class="text-sm text-slate-500 dark:text-slate-400">All caught up!</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Welcome Modal -->
+    <div id="welcomeModal" class="fixed inset-0 z-50 hidden">
+        <div class="absolute inset-0 bg-black/50 backdrop-blur-sm" onclick="closeWelcomeModal()"></div>
+        <div class="welcome-modal absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-md mx-4">
+            <div class="bg-white dark:bg-slate-800 rounded-3xl shadow-2xl border border-slate-200 dark:border-slate-700 overflow-hidden">
+                <div class="bg-gradient-to-r from-cyan-500 to-teal-500 p-6 text-white text-center">
+                    <div class="w-16 h-16 mx-auto mb-4 bg-white/20 rounded-2xl flex items-center justify-center backdrop-blur">
+                        <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"></path>
+                        </svg>
+                    </div>
+                    <h2 class="text-2xl font-bold mb-1">Welcome to myWork.AI</h2>
+                    <p class="text-white/80 text-sm">Your offline-first task tracker</p>
+                </div>
+                <div class="p-6">
+                    <div id="welcomeContent" class="space-y-4">
+                        <!-- Dynamic welcome content -->
+                    </div>
+                    <button onclick="closeWelcomeModal()" class="w-full mt-6 px-4 py-3 bg-gradient-to-r from-cyan-500 to-teal-500 text-white rounded-xl font-semibold text-sm hover:from-cyan-600 hover:to-teal-600 transition-all shadow-lg shadow-cyan-500/25">
+                        Get Started
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <!-- Header -->
     <header class="bg-white/80 dark:bg-slate-900/90 backdrop-blur-xl border-b border-slate-200/50 dark:border-slate-700/50 py-4 shadow-sm sticky top-0 z-40">
@@ -111,6 +175,13 @@
                             <span class="w-1.5 h-1.5 rounded-full bg-teal-500 animate-pulse"></span>
                             <span>Online</span>
                         </div>
+                        <!-- Mobile: Notification Bell -->
+                        <button onclick="toggleNotificationPanel()" class="p-2 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors text-slate-600 dark:text-slate-300 relative" id="notificationBellMobile">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path>
+                            </svg>
+                            <span id="notificationBadgeMobile" class="notification-badge absolute -top-1 -right-1 w-4 h-4 bg-red-500 text-white text-[9px] font-bold rounded-full flex items-center justify-center hidden">0</span>
+                        </button>
                         <!-- Mobile: Dark Mode Toggle -->
                         <button onclick="toggleDarkMode()" class="p-2 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors text-slate-600 dark:text-slate-300">
                             <svg id="darkIconMobile" class="w-5 h-5 hidden dark:block" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -144,6 +215,14 @@
                         <span>Online</span>
                     </div>
                     
+                    <!-- Notification Bell -->
+                    <button onclick="toggleNotificationPanel()" class="p-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors text-slate-600 dark:text-slate-300 relative" title="Notifications" id="notificationBellDesktop">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path>
+                        </svg>
+                        <span id="notificationBadgeDesktop" class="notification-badge absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center hidden">0</span>
+                    </button>
+
                     <!-- Dark Mode Toggle -->
                     <button onclick="toggleDarkMode()" class="p-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors text-slate-600 dark:text-slate-300" title="Toggle Dark Mode">
                         <svg id="darkIcon" class="w-5 h-5 hidden dark:block" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -435,6 +514,333 @@
             { id: "5.5", phase: 5, text: "Create bulk status update endpoint", file: "Backend", effort: 8, status: false, priority: "high", createdAt: Date.now() }
         ];
 
+        // ===== NOTIFICATION SYSTEM =====
+        const NOTIFICATIONS_KEY = 'myWorkNotifications';
+        const LAST_VISIT_KEY = 'myWorkLastVisit';
+        const WELCOME_SHOWN_KEY = 'myWorkWelcomeShown';
+        
+        let notifications = [];
+
+        // Notification types and their icons/colors
+        const notificationTypes = {
+            welcome: { icon: 'sparkles', color: 'from-cyan-500 to-teal-500', title: 'Welcome' },
+            tip: { icon: 'lightbulb', color: 'from-amber-500 to-orange-500', title: 'Tip' },
+            update: { icon: 'arrow-up-circle', color: 'from-purple-500 to-pink-500', title: 'Update' },
+            reminder: { icon: 'clock', color: 'from-blue-500 to-indigo-500', title: 'Reminder' },
+            achievement: { icon: 'trophy', color: 'from-yellow-500 to-amber-500', title: 'Achievement' },
+            info: { icon: 'info', color: 'from-slate-500 to-slate-600', title: 'Info' }
+        };
+
+        // Predefined tips to show randomly
+        const tips = [
+            { type: 'tip', message: 'Press "N" to quickly add a new task!' },
+            { type: 'tip', message: 'Use Ctrl+K (or Cmd+K) to search tasks instantly.' },
+            { type: 'tip', message: 'Your tasks are saved offline - no internet needed!' },
+            { type: 'tip', message: 'Click on Phase Progress bars to filter tasks by phase.' },
+            { type: 'tip', message: 'Toggle dark mode for comfortable night-time work.' },
+            { type: 'tip', message: 'High priority tasks are shown at the top of the list.' },
+            { type: 'tip', message: 'Use filters to focus on pending or completed tasks.' }
+        ];
+
+        // Announcements (you can update these for your team)
+        const announcements = [
+            { type: 'update', message: 'New feature: Dark mode is now available!', id: 'dark-mode-v1' },
+            { type: 'update', message: 'You can now filter tasks by priority level.', id: 'priority-filter-v1' },
+            { type: 'info', message: 'This tracker works offline - your data is safe!', id: 'offline-info-v1' }
+        ];
+
+        function initNotifications() {
+            loadNotifications();
+            checkFirstVisit();
+            checkReturningUser();
+            showStartupNotifications();
+            updateNotificationBadge();
+        }
+
+        function loadNotifications() {
+            const saved = localStorage.getItem(NOTIFICATIONS_KEY);
+            if (saved) {
+                notifications = JSON.parse(saved);
+            }
+        }
+
+        function saveNotifications() {
+            localStorage.setItem(NOTIFICATIONS_KEY, JSON.stringify(notifications));
+            updateNotificationBadge();
+        }
+
+        function addNotification(type, message, persistent = false) {
+            const notification = {
+                id: 'notif_' + Date.now(),
+                type: type,
+                message: message,
+                timestamp: Date.now(),
+                read: false,
+                persistent: persistent
+            };
+            notifications.unshift(notification);
+            // Keep only last 20 notifications
+            if (notifications.length > 20) {
+                notifications = notifications.slice(0, 20);
+            }
+            saveNotifications();
+            renderNotifications();
+        }
+
+        function checkFirstVisit() {
+            const welcomeShown = localStorage.getItem(WELCOME_SHOWN_KEY);
+            if (!welcomeShown) {
+                // First time user - show welcome modal
+                setTimeout(() => {
+                    showWelcomeModal();
+                }, 500);
+                localStorage.setItem(WELCOME_SHOWN_KEY, 'true');
+                
+                // Add welcome notification
+                addNotification('welcome', 'Welcome to myWork.AI Task Tracker! We\'re glad you\'re here.');
+            }
+        }
+
+        function checkReturningUser() {
+            const lastVisit = localStorage.getItem(LAST_VISIT_KEY);
+            const now = Date.now();
+            
+            if (lastVisit) {
+                const hoursSinceLastVisit = (now - parseInt(lastVisit)) / (1000 * 60 * 60);
+                
+                // If returning after more than 24 hours
+                if (hoursSinceLastVisit > 24) {
+                    const pendingTasks = state.tasks.filter(t => !t.status).length;
+                    const completedTasks = state.tasks.filter(t => t.status).length;
+                    
+                    if (pendingTasks > 0) {
+                        addNotification('reminder', `Welcome back! You have ${pendingTasks} pending task${pendingTasks > 1 ? 's' : ''} waiting.`);
+                    } else if (completedTasks > 0) {
+                        addNotification('achievement', 'Amazing! All your tasks are completed! 🎉');
+                    }
+                }
+                
+                // Show a random tip occasionally (every 4+ hours)
+                if (hoursSinceLastVisit > 4) {
+                    const randomTip = tips[Math.floor(Math.random() * tips.length)];
+                    setTimeout(() => {
+                        addNotification(randomTip.type, randomTip.message);
+                    }, 2000);
+                }
+            }
+            
+            localStorage.setItem(LAST_VISIT_KEY, now.toString());
+        }
+
+        function showStartupNotifications() {
+            // Check for new announcements user hasn't seen
+            const seenAnnouncements = JSON.parse(localStorage.getItem('myWorkSeenAnnouncements') || '[]');
+            
+            announcements.forEach(announcement => {
+                if (!seenAnnouncements.includes(announcement.id)) {
+                    addNotification(announcement.type, announcement.message);
+                    seenAnnouncements.push(announcement.id);
+                }
+            });
+            
+            localStorage.setItem('myWorkSeenAnnouncements', JSON.stringify(seenAnnouncements));
+            
+            // Show greeting based on time of day
+            const hour = new Date().getHours();
+            let greeting = '';
+            if (hour < 12) greeting = 'Good morning! Ready to be productive today?';
+            else if (hour < 17) greeting = 'Good afternoon! Keep up the great work!';
+            else if (hour < 21) greeting = 'Good evening! Wrapping up for the day?';
+            else greeting = 'Working late? Remember to take breaks!';
+            
+            // Only show greeting if not first visit (welcome modal handles that)
+            if (localStorage.getItem(WELCOME_SHOWN_KEY) === 'true' && !localStorage.getItem('greetingShown_' + new Date().toDateString())) {
+                setTimeout(() => {
+                    showToast(greeting, 'info');
+                }, 1000);
+                localStorage.setItem('greetingShown_' + new Date().toDateString(), 'true');
+            }
+        }
+
+        function showWelcomeModal() {
+            const content = document.getElementById('welcomeContent');
+            const pendingCount = state.tasks.filter(t => !t.status).length;
+            const totalHours = state.tasks.reduce((a, b) => a + b.effort, 0);
+            
+            content.innerHTML = `
+                <div class="flex items-start gap-3 p-3 bg-cyan-50 dark:bg-cyan-900/20 rounded-xl">
+                    <div class="w-10 h-10 rounded-full bg-gradient-to-r from-cyan-500 to-teal-500 flex items-center justify-center flex-shrink-0">
+                        <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+                        </svg>
+                    </div>
+                    <div>
+                        <h4 class="font-semibold text-slate-800 dark:text-white text-sm">${pendingCount} Tasks Ready</h4>
+                        <p class="text-xs text-slate-500 dark:text-slate-400">${totalHours} hours of work loaded</p>
+                    </div>
+                </div>
+                <div class="flex items-start gap-3 p-3 bg-amber-50 dark:bg-amber-900/20 rounded-xl">
+                    <div class="w-10 h-10 rounded-full bg-gradient-to-r from-amber-500 to-orange-500 flex items-center justify-center flex-shrink-0">
+                        <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                        </svg>
+                    </div>
+                    <div>
+                        <h4 class="font-semibold text-slate-800 dark:text-white text-sm">Works Offline</h4>
+                        <p class="text-xs text-slate-500 dark:text-slate-400">Your data is saved locally</p>
+                    </div>
+                </div>
+                <div class="flex items-start gap-3 p-3 bg-purple-50 dark:bg-purple-900/20 rounded-xl">
+                    <div class="w-10 h-10 rounded-full bg-gradient-to-r from-purple-500 to-pink-500 flex items-center justify-center flex-shrink-0">
+                        <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path>
+                        </svg>
+                    </div>
+                    <div>
+                        <h4 class="font-semibold text-slate-800 dark:text-white text-sm">Dark Mode</h4>
+                        <p class="text-xs text-slate-500 dark:text-slate-400">Toggle with the moon icon</p>
+                    </div>
+                </div>
+            `;
+            
+            document.getElementById('welcomeModal').classList.remove('hidden');
+        }
+
+        function closeWelcomeModal() {
+            document.getElementById('welcomeModal').classList.add('hidden');
+        }
+
+        function toggleNotificationPanel() {
+            const panel = document.getElementById('notificationPanel');
+            const isHidden = panel.classList.contains('hidden');
+            
+            if (isHidden) {
+                panel.classList.remove('hidden');
+                renderNotifications();
+                // Mark all as read after a delay
+                setTimeout(() => {
+                    markAllAsRead();
+                }, 1000);
+            } else {
+                panel.classList.add('hidden');
+            }
+        }
+
+        function renderNotifications() {
+            const list = document.getElementById('notificationList');
+            const noNotifs = document.getElementById('noNotifications');
+            
+            if (notifications.length === 0) {
+                list.classList.add('hidden');
+                noNotifs.classList.remove('hidden');
+                return;
+            }
+            
+            list.classList.remove('hidden');
+            noNotifs.classList.add('hidden');
+            
+            list.innerHTML = notifications.map((notif, index) => {
+                const typeInfo = notificationTypes[notif.type] || notificationTypes.info;
+                const timeAgo = getTimeAgo(notif.timestamp);
+                
+                return `
+                    <div class="notification-item p-4 border-b border-slate-100 dark:border-slate-700 last:border-0 ${notif.read ? 'opacity-60' : ''} hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors">
+                        <div class="flex gap-3">
+                            <div class="w-10 h-10 rounded-full bg-gradient-to-r ${typeInfo.color} flex items-center justify-center flex-shrink-0">
+                                <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    ${getNotificationIcon(notif.type)}
+                                </svg>
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <div class="flex items-center gap-2 mb-1">
+                                    <span class="text-xs font-bold text-slate-600 dark:text-slate-300 uppercase">${typeInfo.title}</span>
+                                    ${!notif.read ? '<span class="w-2 h-2 rounded-full bg-cyan-500"></span>' : ''}
+                                </div>
+                                <p class="text-sm text-slate-700 dark:text-slate-300">${escapeHtml(notif.message)}</p>
+                                <p class="text-[10px] text-slate-400 mt-1">${timeAgo}</p>
+                            </div>
+                            <button onclick="dismissNotification('${notif.id}')" class="p-1 hover:bg-slate-200 dark:hover:bg-slate-600 rounded transition-colors flex-shrink-0">
+                                <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function getNotificationIcon(type) {
+            const icons = {
+                welcome: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"></path>',
+                tip: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path>',
+                update: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 11l3-3m0 0l3 3m-3-3v8m0-13a9 9 0 110 18 9 9 0 010-18z"></path>',
+                reminder: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>',
+                achievement: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"></path>',
+                info: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>'
+            };
+            return icons[type] || icons.info;
+        }
+
+        function getTimeAgo(timestamp) {
+            const seconds = Math.floor((Date.now() - timestamp) / 1000);
+            if (seconds < 60) return 'Just now';
+            const minutes = Math.floor(seconds / 60);
+            if (minutes < 60) return `${minutes}m ago`;
+            const hours = Math.floor(minutes / 60);
+            if (hours < 24) return `${hours}h ago`;
+            const days = Math.floor(hours / 24);
+            return `${days}d ago`;
+        }
+
+        function markAllAsRead() {
+            notifications.forEach(n => n.read = true);
+            saveNotifications();
+            renderNotifications();
+        }
+
+        function dismissNotification(id) {
+            notifications = notifications.filter(n => n.id !== id);
+            saveNotifications();
+            renderNotifications();
+        }
+
+        function clearAllNotifications() {
+            notifications = [];
+            saveNotifications();
+            renderNotifications();
+            showToast('All notifications cleared', 'info');
+        }
+
+        function updateNotificationBadge() {
+            const unreadCount = notifications.filter(n => !n.read).length;
+            const badges = ['notificationBadgeDesktop', 'notificationBadgeMobile'];
+            
+            badges.forEach(id => {
+                const badge = document.getElementById(id);
+                if (badge) {
+                    if (unreadCount > 0) {
+                        badge.textContent = unreadCount > 9 ? '9+' : unreadCount;
+                        badge.classList.remove('hidden');
+                    } else {
+                        badge.classList.add('hidden');
+                    }
+                }
+            });
+        }
+
+        // Close notification panel when clicking outside
+        document.addEventListener('click', (e) => {
+            const panel = document.getElementById('notificationPanel');
+            const bellDesktop = document.getElementById('notificationBellDesktop');
+            const bellMobile = document.getElementById('notificationBellMobile');
+            
+            if (!panel.contains(e.target) && e.target !== bellDesktop && e.target !== bellMobile && 
+                !bellDesktop?.contains(e.target) && !bellMobile?.contains(e.target)) {
+                panel.classList.add('hidden');
+            }
+        });
+
         // ===== INITIALIZATION =====
         window.onload = () => {
             loadTheme();
@@ -445,6 +851,7 @@
             initChart();
             setupNetworkListeners();
             setupKeyboardShortcuts();
+            initNotifications();
         };
 
         // ===== THEME MANAGEMENT =====
